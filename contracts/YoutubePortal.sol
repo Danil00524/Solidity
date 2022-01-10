@@ -5,18 +5,42 @@ import "hardhat/console.sol";
 contract YoutubePortal {
     uint256 totalVideoShares;
 
-    constructor() {
-        console.log("Yo yo, I am a contract and I am smart");
+    constructor() payable {
+        console.log("We have been constructed!");
     }
 
-    function shareVideo() public {
+    // ===== Types =====
+    struct ShareInfo {
+        address sharedAddress;
+        string youtubeUrl;
+        uint256 timestamp;
+    }
+    ShareInfo[] sharesInfo;
+
+    // ===== Events =====
+    event OnShareVideo(address indexed from, uint256 timestamp, string message);
+
+    // ===== Methods =====
+    function shareVideo(string memory _message) public {
         totalVideoShares += 1;
-        // Code for sharing
-        console.log("%s has shared!", msg.sender);
+
+        sharesInfo.push(ShareInfo(msg.sender, _message, block.timestamp));
+        emit OnShareVideo(msg.sender, block.timestamp, _message);
+
+        uint256 prizeAmount = 0.0001 ether;
+        require(
+            prizeAmount <= address(this).balance,
+            "Trying to withdraw more money than the contract has."
+        );
+        (bool success, ) = (msg.sender).call{value: prizeAmount}("");
+        require(success, "Failed to withdraw money from contract.");
+    }
+
+    function getAllSharesInfo() public view returns (ShareInfo[] memory) {
+        return sharesInfo;
     }
 
     function getTotalVideoShares() public view returns (uint256) {
-        console.log("We have %d total number of video shares!", totalVideoShares);
         return totalVideoShares;
     }
 }

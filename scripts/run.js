@@ -8,16 +8,39 @@ const main = async () => {
     console.log("Contract deployed to:", youtubeContract.address);
     console.log("Contract deployed by:", owner.address);
 
-    // ==== Updating store ====
-    await youtubeContract.getTotalVideoShares();
-    const youtubeOwnerTxn = await youtubeContract.shareVideo();
-    await youtubeOwnerTxn.wait();
+    // ==== Testing ====
+    let contractBalance = await hre.ethers.provider.getBalance(
+        youtubeContract.address
+    );
+    console.log(
+        'Contract balance:',
+        hre.ethers.utils.formatEther(contractBalance)
+    );
 
-    await youtubeContract.getTotalVideoShares();
-    const youtubeRandomPersonTxn = await youtubeContract.connect(randomPerson).shareVideo();
-    await youtubeRandomPersonTxn.wait();
+    let waveTxn = await youtubeContract.shareVideo('A message!');
+    await waveTxn.wait();
 
-    await youtubeContract.getTotalVideoShares();
+    /*
+     * Get Contract balance to see what happened!
+     */
+    contractBalance = await hre.ethers.provider.getBalance(youtubeContract.address);
+    console.log(
+        'Contract balance:',
+        hre.ethers.utils.formatEther(contractBalance)
+    );
+
+    // await youtubeContract.getTotalVideoShares();
+    // const youtubeOwnerTxn = await youtubeContract.shareVideo('A message!');
+    // await youtubeOwnerTxn.wait();
+    //
+    // await youtubeContract.getTotalVideoShares();
+    // const youtubeRandomPersonTxn = await youtubeContract.connect(randomPerson).shareVideo('Another message');
+    // await youtubeRandomPersonTxn.wait();
+    //
+    // await youtubeContract.getTotalVideoShares();
+
+    let allSharesInfo = await youtubeContract.getAllSharesInfo();
+    console.log(allSharesInfo);
 }
 
 const runMain = async () => {
